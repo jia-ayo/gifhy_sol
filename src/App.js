@@ -1,6 +1,18 @@
+import { Connection, PublicKey, clusterApiUrl  } from '@solana/web3.js';
+import { Program, Provider, web3 } from "@project-serum/anchor";
 import twitterLogo from './assets/twitter-logo.svg';
 import './App.css';
 import { useEffect, useState } from 'react';
+import idl from './idl.json';
+
+const { SystemProgram, Keypair} = web3;
+let baseAccount = Keypair.generate();
+const programID = new PublicKey(idl.metadata.address);
+
+const network = clusterApiUrl('devnet');
+const opts = {
+  preflightCommitment: "processed"
+}
 
 // Constants
 const TWITTER_HANDLE = 'jia_ayo';
@@ -55,6 +67,12 @@ const App = () => {
       setInputValue(value)
   }
 
+  const getProvider = () => {
+    const connection = new Connection(network, opts.preflightCommitment)
+    const provider = new Provider(connection, window.solana, opts.preflightCommitment)
+    return provider;
+  }
+
   const renderNotConnectedContainer = ()=>
    ( <button
     className='cta-button connect-wallet-button'
@@ -86,18 +104,32 @@ const App = () => {
       </div>
     </div>
   )
-    useEffect(()=>{
+  useEffect(()=>{
     const onLoad = async()=>{
       await checkIfWalletIsConnected()
     }
     window.addEventListener("load", onLoad)
     return () => window.remove("load", onLoad)
   },[])
+
+  const getGifList = async()=>{
+    try{
+      const provider= getProvider()
+      const program = new Program(idl, programID, provider);
+      const account = await program.account.baseAccount.fetch(baseAccount.publicKey);
+
+      console.log("Got the Account", account)
+      setGifLIst(account.gifList)
+    }catch(error){
+      console.error("Error in Getting Gif List:",error)
+      setGifLIst(null)
+    }
+  }
   useEffect(() => {
     if(walletAddress){
       console.log("fetching gif list ...")
 
-      setGifLIst(TEST_GIFS)
+      getGifList()
     }
   },[walletAddress])
   return (
