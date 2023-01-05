@@ -159,12 +159,11 @@ const App = () => {
     }
   }
   useEffect(() => {
-    if(walletAddress){
+    if(walletAddress) {
       console.log("fetching gif list ...")
-
       getGifList()
     }
-  },[walletAddress])
+  }, [walletAddress])
   return (
     <div className="App">
       <div className={walletAddress? "authed-container" : "container"}>
