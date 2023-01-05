@@ -63,8 +63,22 @@ const App = () => {
   const sendGif = async () => {
     if (inputValue.length > 5) {
       console.log(`Gif link: ${inputValue}`);
-      setGifLIst([...gifList, inputValue]);
-      setInputValue("");
+
+      try {
+        const provider = getProvider();
+        const program = new Program(idl, programID, provider);
+        await program.rpc.addGif(inputValue, {
+          accounts: {
+            baseAccount: baseAccount.publicKey,
+            user: provider.wallet.publicKey,
+          },
+        });
+        console.log("GIF succefully sent to program", inputValue);
+        await getGifList();
+        setInputValue("");
+      } catch (err) {
+        console.error(err);
+      }
     } else {
       console.log("empty link, input gif link");
     }
