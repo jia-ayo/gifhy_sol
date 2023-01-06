@@ -5,10 +5,14 @@ import twitterLogo from "./assets/twitter-logo.svg";
 import "./App.css";
 import React, { useEffect, useState } from "react";
 import idl from "./idl.json";
+import kp from "./keypair.json"; 
 
 const { SystemProgram, Keypair } = web3;
 window.Buffer = Buffer;
-let baseAccount = Keypair.generate();
+
+const arr = Object.values(kp._keypair.secretKey);
+const secret = new Uint8Array(arr);
+const baseAccount =  web3.Keypair.fromSecretKey(secret);
 const programID = new PublicKey(idl.metadata.address);
 
 const network = clusterApiUrl("devnet");
